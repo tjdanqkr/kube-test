@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  namespace: my-namespace
+data:
+  USERNAME: "root"
+  PASSWORD: "1234"

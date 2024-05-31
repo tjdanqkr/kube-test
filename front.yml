@@ -15,9 +15,17 @@ spec:
     spec:
       containers:
         - name: frontend
+          imagePullPolicy: Always
           image: tjdanqkr/test:latest
           ports:
             - containerPort: 80
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
 ---
 apiVersion: v1
 kind: Service

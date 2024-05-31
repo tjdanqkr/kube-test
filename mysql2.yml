@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-b-2-pvc
+  namespace: my-namespace
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 0.5Gi
+  selector:
+    matchLabels:
+      type: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-b-2-deployment
+  namespace: my-namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-b-2
+  template:
+    metadata:
+      labels:
+        app: mysql-b-2
+    spec:
+      containers:
+        - name: mysql-b-2
+          image: mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: PASSWORD
+            - name: MYSQL_DATABASE
+              value: mydb2
+          resources:
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
+          volumeMounts:
+            - name: mysql-storage-2
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage-2
+          persistentVolumeClaim:
+            claimName: mysql-b-2-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-b-2-service
+  namespace: my-namespace
+spec:
+  selector:
+    app: mysql-b-2
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
