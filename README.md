@@ -17,7 +17,18 @@ kubectl get pods -n default -l app.kubernetes.io/name=ingress-nginx
 
 kubectl get svc -n default nginx-ingress-ingress-nginx-controller
 
-kubectl port-forward svc/nginx-ingress-ingress-nginx-controller 8080:80 -n default
+...
+spec:
+clusterIP: 10.107.23.205
+clusterIPs:
+
+- 10.107.23.205
+  externalIPs:
+- 내부
+  ...
+
+kubectl get ing -A
+kubectl describe ing my-ingress -n ingress-nginx
 
 kubectl describe ingress my-ingress -n my-namespace
 
