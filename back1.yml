@@ -32,6 +32,8 @@ spec:
                 configMapKeyRef:
                   name: db-config
                   key: PASSWORD
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: create
           resources:
             limits:
               cpu: "500m"
