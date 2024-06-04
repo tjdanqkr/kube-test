@@ -11,7 +11,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: /Users/qkrtjdan/Desktop/code/kube-test/mysql1
+    path: /kube-test/mysql1
   persistentVolumeReclaimPolicy: Retain
   storageClassName: "mysql1-storage"
 ---
