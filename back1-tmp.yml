@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend1-deployment-1
+  namespace: my-namespace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend1-1
+  template:
+    metadata:
+      labels:
+        app: backend1-1
+    spec:
+      containers:
+        - name: backend1-1
+          image: tjdanqkr/test:back
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: profiles
+              value: helm
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql-b-1-service:3306/mydb1?serverTimezone=Asia/Seoul
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "1234"
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: create
+            - name: app_origin
+              value: host
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+            requests:
+              cpu: "500m"
+              memory: "500Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend1-service-1
+  namespace: my-namespace
+spec:
+  selector:
+    app: backend1-1
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
