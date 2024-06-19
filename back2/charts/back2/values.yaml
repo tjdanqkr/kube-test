@@ -87,7 +87,7 @@ affinity: {}
 
 env:
   - name: profiles
-    value: helm
+    value: prod
   - name: SPRING_DATASOURCE_URL
     value: jdbc:mysql://back2-db-2:3306/mydb2?serverTimezone=Asia/Seoul
   - name: SPRING_DATASOURCE_USERNAME

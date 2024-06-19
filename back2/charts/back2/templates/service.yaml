@@ -13,3 +13,15 @@ spec:
       name: http
   selector:
     {{- include "back2.selectorLabels" . | nindent 4 }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "back2.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{- include "back2.labels" . | nindent 4 }}
+  endpoints:
+    - port: http
+      path: "/actuator/prometheus"
