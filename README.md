@@ -230,6 +230,11 @@ kubectl create ns mon
 
 helm upgrade --install loki grafana/loki-stack --set grafana.enabled=true,prometheus.enabled=true,prometheus-node-exporter.hostRootFsMount.enabled=false -n mon
 
+---
+node-exporter 에러 발생시
+
+kubectl patch ds loki-prometheus-node-exporter -n mon --type "json" -p '[{"op": "remove", "path" : "/spec/template/spec/containers/0/volumeMounts/2/mountPropagation"}]'
+
 grafana password
 
 kubectl get secret --namespace mon loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
@@ -248,3 +253,6 @@ kubectl get secret --namespace mon loki-grafana -o jsonpath="{.data.admin-passwo
 spring 설정은 프로젝트 참고
 - build.gradle 추가 
 - 설정 추가
+
+
+스프링이랑 프로메테우스랑 연결 안됨 문제
