@@ -168,91 +168,75 @@ password password
 
 그라파나 + 프로메테우스
 
-https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
-
 설치
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts<br>
-helm repo update<br>
-kubectl create ns monitoring<br>
-helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring<br>
-
-kubectl edit svc prometheus-stack-grafana -n monitoring
-
 ```
+kubectl create ns mon
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install pgs prometheus-community/kube-prometheus-stack -n mon
+```
+
+spring 설정은 프로젝트 참고
+- build.gradle 추가
+- 설정 추가
+
+pgs-kube-prometheus-stack-prometheus
+
+pgs-grafana
+
+nodePort로 열어버리기
+
+### spring 연동
+
+helm back 쪽 서비스에 설정 추가
+```
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "back2.fullname" . }}
+  labels:
+    {{- include "back2.labels" . | nindent 4 }}
+    release: pgs
 spec:
-  clusterIP: 10.106.3.185
-  clusterIPs:
-  - 10.106.3.185
-  externalTrafficPolicy: Cluster
-  internalTrafficPolicy: Cluster
-  ipFamilies:
-  - IPv4
-  ipFamilyPolicy: SingleStack
-  ports:
-  - name: http-web
-    nodePort: 30003 # 적당히
-    port: 80
-    protocol: TCP
-    targetPort: 3000
   selector:
-    app.kubernetes.io/instance: prometheus-stack
-    app.kubernetes.io/name: grafana
-  sessionAffinity: None
-  type: NodePort # NodePort로
+    matchLabels:
+      app: {{- include "back2.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: "/actuator/prometheus"
 ```
+<b>label 에 release: prometheus , prometheus object의 key:value와 꼭 맞추어 줍니다.</b>
 
-https://prometheus-operator.dev/docs/prologue/quick-start/
+prometheus 가서 targets 확인
 
-https://grafana.com/grafana/dashboards/?search=spring
 
-https://github.com/blueswen/spring-boot-observability/blob/main/app/src/main/resources/application.yaml
+kubectl get secret --namespace mon pgs-grafana  -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+
 
 ## loki
 
-git clone https://github.com/grafana/helm-charts
 
-cd helm-charts/charts/loki-stack
-
-helm dependency build
-
-helm install loki-stack . --namespace monitoring
-
-17175
-
-https://github.com/grafana/helm-charts/tree/main/charts/loki-stack
 
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
+helm upgrade --install loki grafana/loki-stack -n mon
 ```
 
-kubectl create ns mon
 
-helm upgrade --install loki grafana/loki-stack --set grafana.enabled=true,prometheus.enabled=true,prometheus-node-exporter.hostRootFsMount.enabled=false -n mon
+
 
 ---
 node-exporter 에러 발생시
 
 kubectl patch ds loki-prometheus-node-exporter -n mon --type "json" -p '[{"op": "remove", "path" : "/spec/template/spec/containers/0/volumeMounts/2/mountPropagation"}]'
 
-grafana password
-
-kubectl get secret --namespace mon loki-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
-
 ---
-
-노드 포트로 열어 버리기
-
-- loki-prometheus-pushgateway
-
-- loki-prometheus-server
-
-- loki-grafana
 
 
 spring 설정은 프로젝트 참고
 - build.gradle 추가 
 - 설정 추가
 
-
-스프링이랑 프로메테우스랑 연결 안됨 문제

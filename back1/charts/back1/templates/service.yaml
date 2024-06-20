@@ -18,10 +18,13 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name:  {{ include "back1.fullname" . }}
+  labels:
+    {{- include "back1.labels" . | nindent 4 }}
+    release: pgs
 spec:
   selector:
     matchLabels:
-      app: {{- include "back1.labels" . | nindent 4 }}
+      app: {{- include "back1.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: http
       path: "/actuator/prometheus"

@@ -39,8 +39,9 @@ securityContext:
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 8080
+  nodePort: 30080
 
 ingress:
   enabled: false
@@ -98,6 +99,8 @@ env:
     value: create
   - name: app_origin
     value: host
+  - name: LOGGING_CONFIG
+    value: /config/logback.xml
 
 livenessProbe:
   initialDelaySeconds: 60
