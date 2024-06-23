@@ -186,6 +186,9 @@ pgs-grafana
 
 nodePort로 열어버리기
 
+https://grafana.com/grafana/dashboards/?search=deploy
+
+
 ### spring 연동
 
 helm back 쪽 서비스에 설정 추가
@@ -213,7 +216,7 @@ prometheus 가서 targets 확인
 
 kubectl get secret --namespace mon pgs-grafana  -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
-
+https://grafana.com/grafana/dashboards/19004-spring-boot-statistics/
 
 ## loki
 
@@ -222,16 +225,22 @@ kubectl get secret --namespace mon pgs-grafana  -o jsonpath="{.data.admin-passwo
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm upgrade --install loki grafana/loki-stack -n mon
+helm upgrade --install pgs grafana/loki-stack \
+    --set grafana.enabled=true,prometheus.enabled=true \
+    -n mon
 ```
 
+grafana nodePort로 열어버리기
+
+
+kubectl get secret --namespace mon pgs-grafana  -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
 
 
 
 ---
 node-exporter 에러 발생시
 
-kubectl patch ds loki-prometheus-node-exporter -n mon --type "json" -p '[{"op": "remove", "path" : "/spec/template/spec/containers/0/volumeMounts/2/mountPropagation"}]'
+kubectl patch ds pgs-prometheus-node-exporter -n mon --type "json" -p "[{'op': 'remove', 'path' : '/spec/template/spec/containers/0/volumeMounts/2/mountPropagation'}]"
 
 ---
 
@@ -239,4 +248,29 @@ kubectl patch ds loki-prometheus-node-exporter -n mon --type "json" -p '[{"op": 
 spring 설정은 프로젝트 참고
 - build.gradle 추가 
 - 설정 추가
+
+http://loki.mon.svc.cluster.local:3100
+
+이거로 datasource 설정
+
+실패해도 괜찮음<br>
+17175 이거 연결하고 쏜다
+
+![img.png](img.png)
+
+--- 
+## mysql 연결 
+---
+
+datasource 설정
+
+mysql
+
+back1-db-1.back.svc.cluster.local:3306
+
+이렇게 사용
+
+root로 하고 그냥 연결
+
+
 

@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loki
+  labels:
+    release: pgs
+  namespace: mon
+spec:
+  selector:
+    matchLabels:
+      app: loki
+  endpoints:
+    - port: "3100"
+      path: "/metrics"
